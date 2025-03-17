@@ -1,0 +1,46 @@
+// Code your testbench here
+// or browse Examples
+module Elevator_Controller_tb;
+    reg clk, reset;
+    reg [2:0] floor_request;
+    reg overload, door_obstruction;
+    wire [1:0] current_floor;
+    wire door_open, moving_up, moving_down;
+
+    Elevator_Controller dut (
+        .clk(clk), .reset(reset),
+        .floor_request(floor_request),
+        .overload(overload), .door_obstruction(door_obstruction),
+        .current_floor(current_floor),
+        .door_open(door_open),
+        .moving_up(moving_up), .moving_down(moving_down)
+    );
+
+    always #5 clk = ~clk;  // Clock generation
+initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars(0, Elevator_Controller_tb); // Change to your testbench module name
+end
+    initial begin
+        clk = 0; reset = 1; #10;
+        reset = 0;
+
+        // Request floor 2 from ground (floor 0)
+        floor_request = 3'b100; #10;
+        floor_request = 3'b000; #50; 
+
+        // Overload scenario (should not move)
+        overload = 1; #10;
+        overload = 0; #10;
+
+        // Request floor 1, then 0
+        floor_request = 3'b010; #50;
+        floor_request = 3'b001; #50;
+
+        // Test door obstruction (door should not close)
+        door_obstruction = 1; #20;
+        door_obstruction = 0; #20;
+
+        $finish;
+    end
+endmodule
